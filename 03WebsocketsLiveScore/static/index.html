@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cric Live Score</title>
+</head>
+
+<style>
+    html {
+        text-align: center;
+        font-size: 16px;
+    }
+
+    div {
+        padding: 1rem;
+    }
+
+    #input {
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+</style>
+
+<body>
+    <div>
+        <h2>Cric Live Score - Golang Websockets</h2>
+        <pre id="display-score" style="font-size: 2rem;"></pre>
+    </div>
+
+</body>
+
+<script>
+    var output = document.getElementById("display-score");
+    var socket = new WebSocket("ws://localhost:6060/ws");
+    socket.onerror = function (e) {
+        output.innerHTML += "Status: Not Connected"
+    }
+    socket.onopen = function () {
+        output.innerHTML += "Status: Connected\n";
+    };
+
+    socket.onmessage = function (e) {
+        console.log("New Score Received");
+        output.innerHTML = e.data + "\n";
+    };
+
+    socket.onclose = function (e) {
+        output.innerHTML = "Status: Closed\n";
+    }
+</script>
+
+</html>

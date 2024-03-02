@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Cric Live Score</title>
+</head>
+
+<style>
+    html {
+        text-align: center;
+        font-size: 16px;
+    }
+
+    div {
+        padding: 1rem;
+    }
+
+    #input {
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+</style>
+
+<body>
+    <div>
+        <h2>Cric Live Score - Admin Panel</h2>
+        <p style="padding: 0;margin: 6;">Runs</p>
+        <input id="score-input" type="text" size="40" />
+        <p style="padding: 0;margin: 6;">Wickets</p>
+        <input id="wickets-input" type="text" size="40" style="margin-bottom: 30px;" />
+        <br />
+        <button onclick="send()">Update Score</button>
+        <pre id="display-score" style="font-size: 2rem;"></pre>
+
+    </div>
+
+</body>
+
+<script>
+    var scoreInput = document.getElementById("score-input");
+    var wicketsInput = document.getElementById("wickets-input");
+
+    var output = document.getElementById("display-score");
+    var socket = new WebSocket("ws://localhost:6060/ws");
+    socket.onerror = function () {
+        output.innerHTML += "Status: Not Connected"
+    }
+    socket.onopen = function () {
+        output.innerHTML += "Status: Connected\n";
+    };
+
+    socket.onmessage = function (e) {
+        console.log("New Score Updated Successfully! 🎊");
+        output.innerHTML = e.data;
+    };
+
+    socket.onclose = function (e) {
+        output.innerHTML = "Status: Closed\n";
+    }
+
+    function send() {
+        const jsonData = {
+            team_name: "India 🇮🇳",
+            total_score: parseInt(scoreInput.value),
+            total_wickets: parseInt(wicketsInput.value)
+        };
+
+        // Send JSON data to the WebSocket server
+        socket.send(JSON.stringify(jsonData));
+    }
+
+</script>
+
+</html>
