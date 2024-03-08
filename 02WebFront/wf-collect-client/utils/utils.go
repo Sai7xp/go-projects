@@ -7,7 +7,7 @@ import (
 
 // generates random build Id
 func GenerateBuildId() string {
-	characters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	characters := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 	// Initialize a random seed
 	x1 := rand.NewSource(time.Now().UnixNano())
