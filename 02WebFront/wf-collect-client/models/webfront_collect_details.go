@@ -1,3 +1,7 @@
+/*
+* Created on 01 March 2024
+* @author Sai Sumanth
+*/
 package models
 
 // Request Body data for /api/v1/collect endpoint
