@@ -63,7 +63,7 @@ func collectDetailsHandler(w http.ResponseWriter, req *http.Request) {
 
 	// send details along with buildId to another microservice `wf-code-builder` via kafka
 	var builderReqBody = map[string]interface{}{
-		"buildId":            buildId,
+		"build_id":           buildId,
 		"project_github_url": projecDetails.ProjectGithubUrl,
 		"build_command":      projecDetails.BuildCommand,
 		"build_out_dir":      projecDetails.BuildOutDir,
@@ -74,9 +74,9 @@ func collectDetailsHandler(w http.ResponseWriter, req *http.Request) {
 	kafkaErr := pushBuildDetailsToKafka(buildDetailsBytes)
 	if kafkaErr != nil {
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"success": false,
-			"message": kafkaErr,
-			"buildId": nil,
+			"success":  false,
+			"message":  kafkaErr.Error(),
+			"build_id": nil,
 		})
 		return
 	}
@@ -85,9 +85,9 @@ func collectDetailsHandler(w http.ResponseWriter, req *http.Request) {
 	logger.Printf("New Build request!! Assigned buildId %s", buildId)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"success": true,
-		"message": "New build request added to the queue successfully!✅",
-		"buildId": buildId,
+		"success":  true,
+		"message":  "New build request added to the queue successfully!✅",
+		"build_id": buildId,
 	})
 }
 
