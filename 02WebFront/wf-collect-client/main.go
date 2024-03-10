@@ -6,6 +6,7 @@
 package main
 
 import (
+	"collectclient/database"
 	"collectclient/models"
 	"collectclient/utils"
 	"encoding/json"
@@ -28,6 +29,7 @@ const (
 
 func main() {
 	fmt.Println("wf-collect-client Microservice Started")
+	database.Init()
 	validate = validator.New(validator.WithRequiredStructEnabled())
 
 	/// Create New Route
@@ -137,5 +139,18 @@ func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 // Get Build events handler
 func showBuildEventsHandler(w http.ResponseWriter, r *http.Request) {
-
+	params := mux.Vars(r)
+	if len(params["build_id"]) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"message":"Build Id is required to fetch details"}`))
+		return
+	}
+	data, err := database.FetchBuildDetailsFromDb(params["build_id"])
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"message": err.Error()})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+	// json.NewEncoder(w).Encode(data)
 }
