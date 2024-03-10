@@ -5,25 +5,20 @@
 package main
 
 import (
+	"code-builder-service/database"
+	"code-builder-service/models"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/IBM/sarama"
 )
 
 var logger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime) // logger
-
-// build request received via kafka
-type BuildRequestDetails struct {
-	BuildId          string `json:"build_id"`
-	ProjectGithubUrl string `json:"project_github_url"`
-	BuildCommand     string `json:"build_command"`
-	BuildOutDir      string `json:"build_out_dir"`
-}
 
 const (
 	kafkaTopic       = "webfront-kafka" // topic name
@@ -32,6 +27,7 @@ const (
 
 func main() {
 	fmt.Println("wf-code-builder Microservice Started")
+	database.Init()
 
 	/// start listening to kafka messages produced on 'webfront-kafka' topic
 	if con, err := createNewConsumer(); err == nil {
@@ -44,7 +40,7 @@ func main() {
 		defer partitionConsumer.Close()
 
 		for msg := range partitionConsumer.Messages() {
-			var buildRequestDetails BuildRequestDetails
+			var buildRequestDetails models.BuildRequestDetails
 			err := json.Unmarshal(msg.Value, &buildRequestDetails)
 			if err != nil {
 				log.Printf("Error while parsing message: %v", err)
@@ -52,6 +48,7 @@ func main() {
 			}
 
 			logger.Printf("📣 Received New Message in topic %s: %+v\n", msg.Topic, buildRequestDetails)
+			database.AddNewBuild(buildRequestDetails)
 			// 1. Build the image using docker build command
 			// 2. Clone Repository and generate the build folder
 			// 3. Deploy on nginx server
@@ -72,7 +69,7 @@ func createNewConsumer() (sarama.Consumer, error) {
 }
 
 // / initiate the repo cloning & build generation process
-func cloneRepoAndGenerateBuild(buildDetails BuildRequestDetails) {
+func cloneRepoAndGenerateBuild(buildDetails models.BuildRequestDetails) error {
 	// cmd := exec.Command("docker", "volume", "create", "wf-storage")
 	logger.Println("Creating docker build....")
 	cmd := exec.Command("docker", "build", "-t", "wf_build_react_app:latest", ".")
@@ -80,9 +77,12 @@ func cloneRepoAndGenerateBuild(buildDetails BuildRequestDetails) {
 
 	if _, err := cmd.CombinedOutput(); err != nil {
 		fmt.Println("❌ Failed to build the image: ", err)
+		return nil
 	}
 	logger.Println("✅ Docker Image Created Successfully")
-	// Build docker image success ✅
+
+	// npm build started
+	database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"BUILD_STARTED": {"timestamp": time.Now()}})
 
 	/// Next step is to clone the repository and generate the build
 	logger.Println("🤞 Trying to clone Repository and Generate Build....")
@@ -91,16 +91,20 @@ func cloneRepoAndGenerateBuild(buildDetails BuildRequestDetails) {
 	scriptFileOutput, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Println("❌ Something went wrong while cloning the repository: ", err)
-		fmt.Println(scriptFileOutput)
-		return
+		fmt.Println(string(scriptFileOutput))
+		database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"BUILD_FAILED": {"timestamp": time.Now(), "reason": string(scriptFileOutput)}})
+		return err
 	}
 	fmt.Println("✅ Cloned Repository from git url and generated build")
+	database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"BUILD_PASSED": {"timestamp": time.Now()}})
 
 	/// Final Step: Deploy the Build
 	ports := []int{5000, 8080, 6060, 7070}
 	for _, port := range ports {
 		if isPortAvailable(port) {
 			logger.Println("Deployment Started....")
+			database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"DEPLOY_STARTED": {"timestamp": time.Now()}})
+
 			pathArg := fmt.Sprintf("/var/lib/docker/volumes/wf-storage/_data/%s:/usr/share/nginx/html", buildDetails.BuildId)
 			portArg := fmt.Sprintf("%d:80", port)
 			serverNameArg := fmt.Sprintf("server-%s", buildDetails.BuildId)
@@ -110,15 +114,21 @@ func cloneRepoAndGenerateBuild(buildDetails BuildRequestDetails) {
 			deployOutput, err := deployCmd.CombinedOutput()
 			if err != nil {
 				logger.Println("❌ Something went wrong while Deploying: ", err)
-				fmt.Println(deployOutput)
-				return
+				fmt.Println(string(deployOutput))
+				database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"DEPLOY_FAILED": {"timestamp": time.Now(), "reason": string(deployOutput)}})
+				return err
 			}
-			logger.Printf("🥳 Deployed Successfully at port %d. Click here to view the deployed version http://localhost:%d", port, port)
-			break
+			deployedUrl := fmt.Sprintf("http://localhost:%d", port)
+			logger.Printf("🥳 Deployed Successfully at port %d. Click here to view the deployed version %s", port, deployedUrl)
+			database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"DEPLOY_PASSED": {"timestamp": time.Now(), "branded_access_url": deployedUrl, "url": deployedUrl}})
+			return nil
 		} else {
 			logger.Println("🔌 ", port, "is already in use. Trying different port")
 		}
 	}
+	database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"DEPLOY_FAILED": {"timestamp": time.Now(), "reason": "All the available 🔌 Ports are used"}})
+
+	return nil
 }
 
 func isPortAvailable(port int) bool {
