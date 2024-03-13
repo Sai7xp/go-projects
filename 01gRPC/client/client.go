@@ -5,14 +5,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	pb "grpc-demo/proto"
-	"log"
-	"time"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	pb "grpc-demo/proto"
+	"log"
 )
 
 const (
@@ -30,16 +27,19 @@ func main() {
 
 	client := pb.NewGreetServiceClient(conn)
 
-	fmt.Println("--------------------- UNARY ------------------")
-	// now let's contact the server
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	response, err := client.SayHello(ctx, &pb.NoParam{})
-	if err != nil {
-		log.Fatalf("count not greet the server: %v", err)
+	///
+	// MakeUnaryCall(client)
+
+	/// server stream call
+	namesList := &pb.NamesList{
+		Names: []string{
+			"Sai",
+			"Alice",
+			"Bob",
+			"Jonathan",
+		},
 	}
-	fmt.Printf("Response from grpc server after sending a req from client : %v\n", response.Message)
+	// GetStreamDataFromServer(client, namesList)
 
-	fmt.Println("--------------------- UNARY CALL :END ------------------")
-
+	SendStreamToServer(client, namesList)
 }

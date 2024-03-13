@@ -8,6 +8,8 @@ service GreetService{
     // send a req to client with no params and return [HelloResponse] from server
     rpc SayHello (NoParam) returns (HelloResponse);
 
+    // send a list of strings from client and get a stream response
+    // server will return a stream of data saying hello to each name
     rpc SayHelloServerStreaming (NamesList) returns (stream HelloResponse);
 
     rpc SayHelloClientStreaming (stream HelloRequest) returns (MessagesList);
@@ -22,7 +24,7 @@ message HelloResponse{
 }
 
 message HelloRequest{
-    string message = 1;
+    string name = 1;
 }
 
 message NamesList{
@@ -30,5 +32,5 @@ message NamesList{
 }
 
 message MessagesList{
-    repeated string names = 1;
+    repeated string messages = 1;
 }

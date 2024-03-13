@@ -22,7 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreetServiceClient interface {
+	// send a req to client with no params and return [HelloResponse] from server
 	SayHello(ctx context.Context, in *NoParam, opts ...grpc.CallOption) (*HelloResponse, error)
+	// send a list of strings from client and get a stream response
+	// server will return a stream of data saying hello to each name
 	SayHelloServerStreaming(ctx context.Context, in *NamesList, opts ...grpc.CallOption) (GreetService_SayHelloServerStreamingClient, error)
 	SayHelloClientStreaming(ctx context.Context, opts ...grpc.CallOption) (GreetService_SayHelloClientStreamingClient, error)
 	SayHelloBiDirectionalStreaming(ctx context.Context, opts ...grpc.CallOption) (GreetService_SayHelloBiDirectionalStreamingClient, error)
@@ -146,7 +149,10 @@ func (x *greetServiceSayHelloBiDirectionalStreamingClient) Recv() (*HelloRespons
 // All implementations must embed UnimplementedGreetServiceServer
 // for forward compatibility
 type GreetServiceServer interface {
+	// send a req to client with no params and return [HelloResponse] from server
 	SayHello(context.Context, *NoParam) (*HelloResponse, error)
+	// send a list of strings from client and get a stream response
+	// server will return a stream of data saying hello to each name
 	SayHelloServerStreaming(*NamesList, GreetService_SayHelloServerStreamingServer) error
 	SayHelloClientStreaming(GreetService_SayHelloClientStreamingServer) error
 	SayHelloBiDirectionalStreaming(GreetService_SayHelloBiDirectionalStreamingServer) error
