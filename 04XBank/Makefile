@@ -1,0 +1,23 @@
+postgres:
+	docker start postgres
+# 	docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=sumanth123 -d postgres
+
+# Executes a command inside postgres container shell for Creating the New Database 
+createdb:
+	docker exec -it postgres createdb --username=postgres --owner=postgres xbank
+
+# Executes a command inside postgres container for droping the Database 
+dropdb:
+	docker exec -it postgres dropdb --username=postgres xbank
+
+# Run this migrate cli command after creating the xbank db
+migrateup:
+	migrate -path db/migration -database "postgresql://postgres:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose up
+
+migratedown:
+	migrate -path db/migration -database "postgresql://postgres:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose down
+
+sqlc:
+	sqlc generate
+
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc
