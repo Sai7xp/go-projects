@@ -24,6 +24,6 @@ brew install sqlc
  - Added Unit Tests for all CRUD operations (Accounts, Entries, Transfers TABLES)
  - What is a DB Transaction
    - A transaction in SQL is a sequence of one or more operations such as insertions, updates, or deletions, performed on a database as a single unit of work.
-   <img src="assets/db_transaction.png" alt="image" width="280" height="auto">
-   <img src="assets/transaction_example.png" alt="image" width="280" height="auto">
+   <img src="assets/db_transaction.png" alt="image" width="380" height="auto">
+   <img src="assets/transaction_example.png" alt="image" width="380" height="auto">
  -  
