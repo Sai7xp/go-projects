@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,7 @@ func TestTransferTx(t *testing.T) {
 	// first create 2 new accounts
 	acc1, _ := createTestAccount(t)
 	acc2, _ := createTestAccount(t)
+	fmt.Println(">> Acc Balance Before:", acc1.Balance, acc2.Balance)
 
 	// run n concurrent transfer transactions
 	n := 5
@@ -89,7 +91,25 @@ func TestTransferTx(t *testing.T) {
 		toAccount := res.ToAccount
 		require.NotEmpty(t, toAccount)
 		require.Equal(t, acc2.ID, toAccount.ID)
-		
-		// TODO: check acounts' balances
+
+		// check acounts' balances
+		fmt.Println(">> Acc Balance After Each Transaction:", fromAccount.Balance, toAccount.Balance)
+		diff1 := acc1.Balance - fromAccount.Balance // amount that goes from acc1
+		diff2 := toAccount.Balance - acc2.Balance // amount that gets added to acc2
+		require.Equal(t, diff1, diff2) // both amounts should be equal
+		require.True(t, diff1 > 0)
+		require.True(t, diff1%amount == 0)
 	}
+
+	// check for final updated balances
+	updatedAcc1, err := store.GetAccount(context.Background(), acc1.ID)
+	require.NoError(t, err)
+
+	updatedAcc2, err := store.GetAccount(context.Background(), acc2.ID)
+	require.NoError(t, err)
+
+	fmt.Println(">> Acc Balance After:", updatedAcc1.Balance, updatedAcc2.Balance)
+	// we are performing n transactions so we need to multiply amount with n
+	require.Equal(t, acc1.Balance-int64(n)*amount, updatedAcc1.Balance)
+	require.Equal(t, acc2.Balance+int64(n)*amount, updatedAcc2.Balance)
 }
