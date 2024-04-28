@@ -21,3 +21,9 @@ brew install sqlc
     ![dbdiagram.io](assets/db_schema.png)
  - Docker, Postgres(Docker Version), TablePlus or Azure Data Studio Installation
  - `sqlc` can be used to generate the Golang Code (check db/query folder for sql queries and db/sqlc for generated Golang code)
+ - Added Unit Tests for all CRUD operations (Accounts, Entries, Transfers TABLES)
+ - What is a DB Transaction
+   - A transaction in SQL is a sequence of one or more operations such as insertions, updates, or deletions, performed on a database as a single unit of work.
+   <img src="assets/db_transaction.png" alt="image" width="280" height="auto">
+   <img src="assets/transaction_example.png" alt="image" width="280" height="auto">
+ -  
