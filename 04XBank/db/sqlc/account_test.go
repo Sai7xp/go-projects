@@ -18,7 +18,7 @@ import (
 func createTestAccount(t *testing.T) (*Account, error) {
 	args := CreateAccountParams{
 		Owner:    fake.Person().Name(),
-		Balance:  utils.RandomMoney(),
+		Balance:  100, // default amount while creating new account
 		Currency: utils.RandomCurrency(),
 	}
 

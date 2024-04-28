@@ -17,9 +17,11 @@ const (
 
 var testQueries *Queries
 var fake faker.Faker
+var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dbDriver, dbSource)
+	var err error
+	testDB, err = sql.Open(dbDriver, dbSource)
 	if err != nil {
 		log.Fatal("Error while opening new db connection ", err)
 	}
@@ -27,6 +29,6 @@ func TestMain(m *testing.M) {
 	// defer conn.Close()
 
 	fake = faker.New()
-	testQueries = New(conn)
+	testQueries = New(testDB)
 	os.Exit(m.Run())
 }
