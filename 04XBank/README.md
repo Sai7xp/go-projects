@@ -26,4 +26,10 @@ brew install sqlc
    - A transaction in SQL is a sequence of one or more operations such as insertions, updates, or deletions, performed on a database as a single unit of work.
    <img src="assets/db_transaction.png" alt="image" width="380" height="auto">
    <img src="assets/transaction_example.png" alt="image" width="380" height="auto">
+ - Deadlock can occur while executing the transactions
+  <img src="assets/transaction_deadlock_queries.png" alt="image" width="380" height="auto"> 
+  <img src="assets/transaction_deadlock_shell.png" alt="image" width="380" height="auto">
  -  
+
+
+### Section 2 Highlights

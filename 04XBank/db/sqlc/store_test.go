@@ -29,9 +29,11 @@ func TestTransferTx(t *testing.T) {
 	resultsChan := make(chan TransferTxResult)
 
 	for i := 0; i < n; i++ {
+		txName := fmt.Sprintf("tx %d", i+1)
 		// new goroutine
 		go func() {
-			result, err := store.TransferTx(context.Background(), TransferTxParams{
+			ctx := context.WithValue(context.Background(), txKey, txName)
+			result, err := store.TransferTx(ctx, TransferTxParams{
 				FromAccountID: acc1.ID,
 				ToAccountID:   acc2.ID,
 				Amount:        amount,
@@ -95,8 +97,8 @@ func TestTransferTx(t *testing.T) {
 		// check acounts' balances
 		fmt.Println(">> Acc Balance After Each Transaction:", fromAccount.Balance, toAccount.Balance)
 		diff1 := acc1.Balance - fromAccount.Balance // amount that goes from acc1
-		diff2 := toAccount.Balance - acc2.Balance // amount that gets added to acc2
-		require.Equal(t, diff1, diff2) // both amounts should be equal
+		diff2 := toAccount.Balance - acc2.Balance   // amount that gets added to acc2
+		require.Equal(t, diff1, diff2)              // both amounts should be equal
 		require.True(t, diff1 > 0)
 		require.True(t, diff1%amount == 0)
 	}
@@ -112,4 +114,60 @@ func TestTransferTx(t *testing.T) {
 	// we are performing n transactions so we need to multiply amount with n
 	require.Equal(t, acc1.Balance-int64(n)*amount, updatedAcc1.Balance)
 	require.Equal(t, acc2.Balance+int64(n)*amount, updatedAcc2.Balance)
+}
+
+// let's check for db deadlock
+// check run_queries.sql file to understand this deadlock condition and
+// how to avoid id just by changing the order of query execution
+func TestTransferTxDeadlock(t *testing.T) {
+	store := NewStore(testDB)
+
+	// first create 2 new accounts
+	acc1, _ := createTestAccount(t)
+	acc2, _ := createTestAccount(t)
+	fmt.Println(">> Acc Balance Before:", acc1.Balance, acc2.Balance)
+
+	// run n concurrent transfer transactions
+	n := 10
+	amount := int64(10)
+
+	errChan := make(chan error)
+
+	for i := 0; i < n; i++ {
+		fromAccountId := acc1.ID
+		toAccountId := acc2.ID
+
+		// transfer money FROM both the accounts
+		if i%2 == 1 {
+			fromAccountId = acc2.ID
+			toAccountId = acc1.ID
+		}
+
+		// new goroutine
+		go func() {
+			_, err := store.TransferTx(context.Background(), TransferTxParams{
+				FromAccountID: fromAccountId,
+				ToAccountID:   toAccountId,
+				Amount:        amount,
+			})
+			errChan <- err
+		}()
+	}
+
+	// check results
+	for i := 0; i < n; i++ {
+		err := <-errChan
+		require.NoError(t, err)
+	}
+
+	// check for final updated balances
+	updatedAcc1, err := store.GetAccount(context.Background(), acc1.ID)
+	require.NoError(t, err)
+
+	updatedAcc2, err := store.GetAccount(context.Background(), acc2.ID)
+	require.NoError(t, err)
+
+	fmt.Println(">> Acc Balance After Transferring the same amount from both accounts(should be equal):", updatedAcc1.Balance, updatedAcc2.Balance)
+	require.Equal(t, acc1.Balance, updatedAcc1.Balance)
+	require.Equal(t, acc2.Balance, updatedAcc2.Balance)
 }
