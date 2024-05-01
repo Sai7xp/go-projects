@@ -22,7 +22,7 @@ jobs:
         image: postgres:latest
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres123
+          POSTGRES_PASSWORD: sumanth123
           POSTGRES_USER: postgres
           POSTGRES_DB: xbank
         # Set health checks to wait until postgres has started
