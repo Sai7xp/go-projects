@@ -1,0 +1,27 @@
+# This workflow is created for XBank project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: xbank-ci-test
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["04XBank/**"]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Setup Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.22
+      id: go
+     
+    - name: Checkout code into Go module directory
+      run: actions/checkout@v2
+
+    - name: Test
+      run: make test
