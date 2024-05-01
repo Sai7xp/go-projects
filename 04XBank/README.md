@@ -9,7 +9,8 @@
  - Postgres
  - TablePlus/Azure Data Studio
  - [Golang Migrate](https://github.com/golang-migrate/migrate)
- - [sqlc](https://sqlc.dev/) 
+ - [sqlc](https://sqlc.dev/)
+ - https://docs.sqlc.dev/en/latest/tutorials/getting-started-postgresql.html 
 ```shell 
 brew install sqlc
 ```
@@ -17,6 +18,8 @@ brew install sqlc
 
 
 ### Section 1 Highlights
+ - ACID Properties [Read More here](https://www.databricks.com/glossary/acid-transactions)
+   ![ACID Properties](assets/db_acid.png)
  - DB Schema can be created using dbdiagram.io
     ![dbdiagram.io](assets/db_schema.png)
  - Docker, Postgres(Docker Version), TablePlus or Azure Data Studio Installation
@@ -29,7 +32,18 @@ brew install sqlc
  - Deadlock can occur while executing the transactions
   <img src="assets/transaction_deadlock_queries.png" alt="image" width="380" height="auto"> 
   <img src="assets/transaction_deadlock_shell.png" alt="image" width="380" height="auto">
- -  
+ - Transaction Isolation Levels (acId)
+   [TODO: Revisit the Transaction Isolation videos once]
+   - Different Read phenomenon
+   <img src="assets/read_phenomena.png" alt="image" width="380" height="auto">
+   - Transaction Isolation Levels
+   <img src="assets/isolation_levels.png" alt="image" width="380" height="auto">
+   - Postgres Isolation Levels
+   <img src="assets/pg_isolation_levels.png" alt="image" width="380" height="auto">
 
+ - GitHub Actions - CI/CD platform that allows you to automate build, test and deployment pipelines
+   - WorkFlows can be created using GitHub Actions. 
+     - WorkFlow is an automated procedure which is made up of 1+ Jobs  
+     - can be triggered by Events, Scheduled or Manually
 
 ### Section 2 Highlights
