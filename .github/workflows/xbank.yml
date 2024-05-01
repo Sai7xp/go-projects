@@ -6,7 +6,7 @@ name: xbank-ci-test
 on:
   push:
     branches: ["main"]
-    paths: ["04XBank/**"]
+    # paths: ["04XBank/**"]
 
 jobs:
   test:
