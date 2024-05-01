@@ -12,6 +12,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 04XBank
     steps:
 
     - name: Set up Go 1.x
