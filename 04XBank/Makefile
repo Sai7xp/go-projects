@@ -2,6 +2,9 @@ postgres:
 	docker start postgres
 # 	docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=sumanth123 -d postgres
 
+sqlshell:
+	docker exec -it postgres psql -U postgres -d xbank
+
 # Executes a command inside postgres container shell for Creating the New Database 
 createdb:
 	docker exec -it postgres createdb --username=postgres --owner=postgres xbank
