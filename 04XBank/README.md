@@ -30,16 +30,16 @@ brew install sqlc
    <img src="assets/db_transaction.png" alt="image" width="380" height="auto">
    <img src="assets/transaction_example.png" alt="image" width="380" height="auto">
  - Deadlock can occur while executing the transactions
-  <img src="assets/transaction_deadlock_queries.png" alt="image" width="380" height="auto"> 
-  <img src="assets/transaction_deadlock_shell.png" alt="image" width="380" height="auto">
+   <img src="assets/transaction_deadlock_queries.png" alt="image" width="380" height="auto"> 
+   <img src="assets/transaction_deadlock_shell.png" alt="image" width="380" height="auto">
  - Transaction Isolation Levels (acId)
    [TODO: Revisit the Transaction Isolation videos once]
    - Different Read phenomenon
    <img src="assets/read_phenomena.png" alt="image" width="380" height="auto">
    - Transaction Isolation Levels
-   <img src="assets/isolation_levels.png" alt="image" width="380" height="auto">
+     <img src="assets/isolation_levels.png" alt="image" width="380" height="auto">
    - Postgres Isolation Levels
-   <img src="assets/pg_isolation_levels.png" alt="image" width="380" height="auto">
+     <img src="assets/pg_isolation_levels.png" alt="image" width="380" height="auto">
 
  - GitHub Actions - CI/CD platform that allows you to automate build, test and deployment pipelines
    - WorkFlows can be created using GitHub Actions. 
