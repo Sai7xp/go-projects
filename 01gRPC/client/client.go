@@ -42,4 +42,7 @@ func main() {
 	// GetStreamDataFromServer(client, namesList)
 
 	SendStreamToServer(client, namesList)
+
+	/// Bi Directional Streaming
+	sendStreamAndReceiveStream(client)
 }

@@ -45,5 +45,6 @@ brew install sqlc
    - WorkFlows can be created using GitHub Actions. 
      - WorkFlow is an automated procedure which is made up of 1+ Jobs  
      - can be triggered by Events, Scheduled or Manually
+   - Created a GitHub Action for running tests automatically everytime new changes are pushed.(checkout `.github/workflows/xbank.yml` for more details)
 
 ### Section 2 Highlights

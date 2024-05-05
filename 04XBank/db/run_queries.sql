@@ -100,3 +100,14 @@ UPDATE accounts SET balance = balance - 10 WHERE id = 2 RETURNING *;
 
 ROLLBACK;
 
+
+-- Transaction ISOLATION Levels (low to high)
+-- READ UNCOMMITTED < READ COMMITTED < REPEATABLE READ < SERIALIZABLE
+-- In PostgreSQL the default Isolation Level is READ COMMITTED
+
+show transaction isolation level;
+
+BEGIN;
+-- SET TRANSACTION can only be used in transaction blocks
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+ROLLBACK;
