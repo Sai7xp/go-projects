@@ -23,7 +23,7 @@ jobs:
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: sumanth123
-          POSTGRES_USER: postgres
+          POSTGRES_USER: root
           POSTGRES_DB: xbank
         # Set health checks to wait until postgres has started
         options: >-

@@ -7,7 +7,7 @@ sqlshell:
 
 # Executes a command inside postgres container shell for Creating the New Database 
 createdb:
-	docker exec -it postgres createdb --username=postgres --owner=postgres xbank
+	docker exec -it postgresql createdb --username=root --owner=root xbank
 
 # Executes a command inside postgres container for droping the Database 
 dropdb:
@@ -15,10 +15,10 @@ dropdb:
 
 # Run this migrate cli command after creating the xbank db
 migrateup:
-	migrate -path db/migration -database "postgresql://postgres:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgresql://root:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://postgres:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "postgresql://root:sumanth123@localhost:5432/xbank?sslmode=disable" -verbose down
 
 sqlc:
 	sqlc generate
@@ -26,4 +26,7 @@ sqlc:
 test:
 	go test -v -cover ./...
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc
+server:
+	go run main.go
+
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server
