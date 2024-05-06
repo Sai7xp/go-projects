@@ -1,6 +1,5 @@
 # XBank [Golang + Postgres + gRPC + Kubernetes]
 
-
 ## Setup
 
 
@@ -9,11 +8,14 @@
  - Postgres
  - TablePlus/Azure Data Studio
  - [Golang Migrate](https://github.com/golang-migrate/migrate)
+   ```shell
+   brew install golang-migrate
+   ```
  - [sqlc](https://sqlc.dev/)
  - https://docs.sqlc.dev/en/latest/tutorials/getting-started-postgresql.html 
-```shell 
-brew install sqlc
-```
+   ```shell 
+   brew install sqlc
+   ```
  - [Golang Postgres Driver for database/sql](https://github.com/lib/pq)
 
 
@@ -45,5 +47,9 @@ brew install sqlc
    - WorkFlows can be created using GitHub Actions. 
      - WorkFlow is an automated procedure which is made up of 1+ Jobs  
      - can be triggered by Events, Scheduled or Manually
+   - Created a GitHub Action for running tests automatically everytime new changes are pushed.(checkout `.github/workflows/xbank.yml` for more details)
 
 ### Section 2 Highlights
+  - Started with implementation of RESTful HTTP apis using Gin Web Framework. And created APIs for CreateAccount, GetAccount, ListAccounts
+  - Added Viper support for loading Configs
+    <img src="assets/why_viper.png" alt="image" width="380" height="auto">
