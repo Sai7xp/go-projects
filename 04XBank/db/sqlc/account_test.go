@@ -72,7 +72,7 @@ func TestDeleteAccount(t *testing.T) {
 	require.NoError(t, err)
 
 	// delete account
-	delErr := testQueries.DeleteAccount(context.Background(), newAccToBeDeleted.ID)
+	_, delErr := testQueries.DeleteAccount(context.Background(), newAccToBeDeleted.ID)
 	require.NoError(t, delErr)
 
 	// try to get account details
