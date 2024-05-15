@@ -27,10 +27,21 @@ const (
 	kafkaTopic = "webfront-kafka"
 )
 
+var producer sarama.SyncProducer
+
 func main() {
 	fmt.Println("wf-collect-client Microservice Started")
 	database.Init()
 	validate = validator.New(validator.WithRequiredStructEnabled())
+
+	url := []string{"localhost:29092"}
+	var createProducerError error
+	producer, createProducerError = createKafkaProducer(url)
+	if createProducerError != nil {
+		log.Fatal("🚨 Error while creating a Kafka Producer")
+	}
+	log.Println("Kafka Producer Created successfully!")
+	defer producer.Close()
 
 	/// Create New Route
 	router := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
@@ -45,12 +56,12 @@ func main() {
 	log.Fatal(http.ListenAndServe(":3000", router))
 }
 
-// /
-// 🛠️ Handler for /api/v1/collect API (only POST is allowed)
-// /
+/*
+🛠️ Handler for /api/v1/collect API (only POST is allowed)
+*/
 func collectDetailsHandler(w http.ResponseWriter, req *http.Request) {
 	projecDetails := new(models.WebfrontCollectDetails)
-	/// decode data
+	// decode data
 	if err := json.NewDecoder(req.Body).Decode(&projecDetails); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -93,6 +104,9 @@ func collectDetailsHandler(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
+/*
+createKafkaProducer - creates and returns a Kafka Producer
+*/
 func createKafkaProducer(url []string) (sarama.SyncProducer, error) {
 	kafkaConfig := sarama.NewConfig()
 	kafkaConfig.Producer.Return.Successes = true
@@ -107,21 +121,13 @@ func createKafkaProducer(url []string) (sarama.SyncProducer, error) {
 	return producer, nil
 }
 
-// sends new message to kafka
+// sends new message to kafka topic
 func pushBuildDetailsToKafka(buildDetailsBytes []byte) error {
-
-	url := []string{"localhost:29092"}
-	producer, err := createKafkaProducer(url)
-	if err != nil {
-		return err
-	}
-	defer producer.Close()
-
 	message := &sarama.ProducerMessage{
 		Topic: kafkaTopic,
 		Value: sarama.ByteEncoder(buildDetailsBytes),
 	}
-	_, _, err = producer.SendMessage(message)
+	_, _, err := producer.SendMessage(message)
 	if err != nil {
 		return err
 	}
@@ -132,6 +138,7 @@ func pushBuildDetailsToKafka(buildDetailsBytes []byte) error {
 
 // 404 route not found handler
 func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
 	logger.Println("Route Not Found")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte(`{"message":"OOPS! Wrong Route"}`))
@@ -139,6 +146,7 @@ func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 // Get Build events handler
 func showBuildEventsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
 	if len(params["build_id"]) == 0 {
 		w.WriteHeader(http.StatusBadRequest)

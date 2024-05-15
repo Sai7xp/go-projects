@@ -24,7 +24,9 @@ const (
 
 var buildsCollection *mongo.Collection
 
+// Initializes the Mongo Database
 func Init() {
+	fmt.Println("Connecting to MongoDb...")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongoUri))
 	if err != nil {
 		fmt.Println("Error while connecting to Database")
