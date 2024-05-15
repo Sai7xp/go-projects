@@ -29,6 +29,16 @@ func main() {
 	fmt.Println("wf-code-builder Microservice Started")
 	database.Init()
 
+	// Build Docker Image on Init
+	logger.Println("Creating docker build....")
+	cmd := exec.Command("docker", "build", "-t", "wf_build_react_app:latest", ".")
+	cmd.Dir = "./wf_build_react_app"
+
+	if _, err := cmd.CombinedOutput(); err != nil {
+		log.Fatal("❌ Failed to build the image: ", err)
+	}
+	logger.Println("✅ Docker Image Created Successfully")
+
 	/// start listening to kafka messages produced on 'webfront-kafka' topic
 	if con, err := createNewConsumer(); err == nil {
 		defer con.Close()
@@ -71,23 +81,14 @@ func createNewConsumer() (sarama.Consumer, error) {
 // / initiate the repo cloning & build generation process
 func cloneRepoAndGenerateBuild(buildDetails models.BuildRequestDetails) error {
 	// cmd := exec.Command("docker", "volume", "create", "wf-storage")
-	logger.Println("Creating docker build....")
-	cmd := exec.Command("docker", "build", "-t", "wf_build_react_app:latest", ".")
-	cmd.Dir = "./wf_build_react_app"
-
-	if _, err := cmd.CombinedOutput(); err != nil {
-		fmt.Println("❌ Failed to build the image: ", err)
-		return nil
-	}
-	logger.Println("✅ Docker Image Created Successfully")
-
+	
 	// npm build started
 	database.UpdateEventToExistingBuild(buildDetails.BuildId, map[string]map[string]interface{}{"BUILD_STARTED": {"timestamp": time.Now()}})
 
 	/// Next step is to clone the repository and generate the build
 	logger.Println("🤞 Trying to clone Repository and Generate Build....")
 	buildIdArg := fmt.Sprintf("BUILD_ID=%s", buildDetails.BuildId)
-	cmd = exec.Command("docker", "run", "-e", buildIdArg, "-v", "wf-storage:/wf/storage", "wf_build_react_app:latest", "-p", buildDetails.ProjectGithubUrl, "-b", buildDetails.BuildCommand, "-o", buildDetails.BuildOutDir)
+	cmd := exec.Command("docker", "run", "-e", buildIdArg, "-v", "wf-storage:/wf/storage", "wf_build_react_app:latest", "-p", buildDetails.ProjectGithubUrl, "-b", buildDetails.BuildCommand, "-o", buildDetails.BuildOutDir)
 	scriptFileOutput, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Println("❌ Something went wrong while cloning the repository: ", err)
