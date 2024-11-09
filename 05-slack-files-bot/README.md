@@ -1,1 +1,0 @@
-A Slack Bot built using GoLang
