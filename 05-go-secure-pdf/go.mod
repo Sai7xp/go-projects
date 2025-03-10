@@ -2,7 +2,10 @@ module go-secure-pdf
 
 go 1.24.0
 
-require github.com/pdfcpu/pdfcpu v0.9.1
+require (
+	github.com/joho/godotenv v1.5.1
+	github.com/pdfcpu/pdfcpu v0.9.1
+)
 
 require (
 	github.com/hhrutter/lzw v1.0.0 // indirect
