@@ -1,6 +1,6 @@
-module go-pdf
+module go-secure-pdf
 
-go 1.22.2
+go 1.24.0
 
 require github.com/pdfcpu/pdfcpu v0.9.1
 
@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/image v0.23.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/image v0.21.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
